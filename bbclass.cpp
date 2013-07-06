@@ -68,19 +68,6 @@ void BBSolver::run() {
 	branch(root, 0);
 	//cout << "Result: " << bestvalue << endl;
 
-	BBNode *cur_node = bestnode;
-
-	bool itemsadded[items];
-	for (int i = 0; i < items; i++) {
-		itemtuple tuple = itemlist[items-1-i];
-
-		if (cur_node->parent_added) {
-			itemsadded[get<0>(tuple)] = true;
-		}
-		else
-			itemsadded[get<0>(tuple)] = false;
-		cur_node = cur_node->parent;
-	}
 
 	this->sortlistID();
 
@@ -88,7 +75,7 @@ void BBSolver::run() {
 	// Print the formatted output
 	cout << bestvalue << " 1" << endl;
 	for (int i = 0; i < items; i++) {
-		if (itemsadded[i])
+		if (bestnode->itemsadded[i])
 			cout << "1 ";
 		else
 			cout << "0 ";
@@ -112,13 +99,30 @@ void BBSolver::branch(BBNode *node, int height) {
 	if (height == items) {
 		if (node->value > bestvalue) {
 			bestvalue = node->value;
+			BBNode *tempnode = bestnode;
 			bestnode = node;
+			delete tempnode;
+
+			// Also record the path to this node.
+			BBNode *cur_node = node;
+			node->itemsadded.resize(items);
+			for (int i = 0; i < items; i++) {
+				itemtuple tuple = itemlist[items-1-i];
+				if (cur_node->parent_added) 
+					node->itemsadded[get<0>(tuple)] = true;
+				else
+					node->itemsadded[get<0>(tuple)] = false;
+				cur_node = cur_node->parent;
+			}
 		}
+		else
+			delete node;
 		return;
 	}
 
 	// If the estimate is worse than the best value, then don't do anything more with this branch.
 	if (node->estimate < bestvalue) {
+		delete node;
 		return;
 	}
 
@@ -135,6 +139,9 @@ void BBSolver::branch(BBNode *node, int height) {
 	node->notadded = new BBNode(get<0>(tuple), node->value, node->room, newestimate, false);
 	node->notadded->parent = node;
 	branch(node->notadded, height+1);
+
+	// Finally delete the node when we are done
+	delete node;
 }
 
 

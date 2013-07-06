@@ -16,7 +16,7 @@ def solveIt(inputData):
 
     # Runs the command: java Solver -file=tmp.data
 
-    process = Popen(['./ksdp', tmpFileName],
+    process = Popen(['./ksbb', tmpFileName],
                     stdout=PIPE)
     (stdout, stderr) = process.communicate()
 

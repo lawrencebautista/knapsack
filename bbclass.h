@@ -13,6 +13,7 @@ public:
 	int room;
 	int estimate;
 	bool parent_added;
+	vector<bool> itemsadded;
 	BBNode *added, *notadded; 
 	BBNode *parent;
 	BBNode(int, int, int, int, bool); // Item ID, Value, Room, Estimate
