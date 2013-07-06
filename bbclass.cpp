@@ -19,6 +19,7 @@ BBSolver::BBSolver(int capacity, int items) {
 	this->capacity = capacity;
 	this->items = items;
 	this->itemlist.resize(items);
+	this->bestvalue = 0;
 }
 
 
@@ -63,36 +64,51 @@ void BBSolver::run() {
 
 	//Construct root with item most V/W
 	BBNode *root = new BBNode(get<0>(itemlist[0]), 0, capacity, estimate);
-	cout << "First estimate: " << estimate << endl;
 
 	branch(root, 0);
 
-	// Now decide whether or not to take the item
-	/* We need to use a separate function.. not a loop. It should create the whole tree 
-	for (int i = 0; i < items; i++) {
-		int cur_id, cur_value, cur_weight;
-		cur_id = get<0>(itemlist[i]);
-		cur_value = get<1>(itemlist[i]);
-		cur_weight = get<2>(itemlist[i]);
-		if (room-cur_weight < 0)
-			;
-	}
-	*/
 }
 
 void BBSolver::branch(BBNode *node, int height) {
 	itemtuple tuple = itemlist[height];
+	
+	int next_item;
+	if (height < items)
+		next_item = get<0>(itemlist[height+1]);
+	else
+		next_item = -1;
+	
+	cout << "Node: Item #" << height << " Value=" << node->value << " Room=" << node->room << " Estimate=" << node->estimate << endl;
+
+	// If this is a leaf node and it has a better value than the best one, replace the bestvalue variable and point to this node
+	if (height == items) {
+		if (node->value > bestvalue) {
+			cout << "Changing best value to " << node->value << endl;
+			bestvalue = node->value;
+			bestnode = node;
+		}
+		return;
+	}
+
+	// If the estimate is worse than the best value, then don't do anything more with this branch.
+	if (node->estimate < bestvalue) {
+		cout << "Estimate not good enough. Terminating" << endl;
+		return;
+	}
 
 	// If there is room for the item, add a branch
 	if (node->room - get<2>(tuple) > 0) {
-		node->added = new BBNode(get<0>(tuple), node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate);
+		node->added = new BBNode(next_item, node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate);
+	//	cout << "+Node -  Item #" << height << " added. Estimate=" << node->estimate << endl;
 		branch(node->added, height+1);
 	}
 
 	// Add another branch for the item not being added. Need to get a new estimate.
 	int newestimate;
+	newestimate = node->value + getEstimate(height+1,node->room);
 	node->notadded = new BBNode(get<0>(tuple), node->value, node->room, newestimate);
-
+//	cout << "+Node -  Item #" << height << " not added. Value=" << node->value << " Room=" << node->room << " Estimate=" << newestimate << endl;
+	branch(node->notadded, height+1);
 }
 
 

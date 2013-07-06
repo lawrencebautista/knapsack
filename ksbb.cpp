@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 	solver->sortlistVPW();
 	solver->displayItems();
 	solver->run();
-
+//
 	delete solver;
 	return 0;
 }

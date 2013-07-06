@@ -21,6 +21,8 @@ public:
 class BBSolver {
 	int capacity;
 	int items;
+	int bestvalue;
+	BBNode *bestnode;
 
 public:
 	vector<itemtuple> itemlist;

@@ -12,7 +12,7 @@ dpclass.o: dpclass.cpp dpclass.h
 ksbb: ksbb.o bbclass.o
 	g++ ksbb.o bbclass.o -o ksbb
 
-ksbb.o: ksbb.cpp
+ksbb.o: ksbb.cpp bbclass.h
 	g++ -c ksbb.cpp -std=c++11
 
 bbclass.o: bbclass.cpp bbclass.h
