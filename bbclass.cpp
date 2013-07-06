@@ -3,7 +3,7 @@
 #include <tuple>
 #include <algorithm>
 #include "bbclass.h"
-
+#include <string>
 
 // These are used for sorting the lists
 bool sortVPW (itemtuple a, itemtuple b) {
@@ -63,9 +63,37 @@ void BBSolver::run() {
 	int estimate = getEstimate(0,capacity);
 
 	//Construct root with item most V/W
-	BBNode *root = new BBNode(get<0>(itemlist[0]), 0, capacity, estimate);
+	BBNode *root = new BBNode(get<0>(itemlist[0]), 0, capacity, estimate, false);
 
 	branch(root, 0);
+	//cout << "Result: " << bestvalue << endl;
+
+	BBNode *cur_node = bestnode;
+
+	bool itemsadded[items];
+	for (int i = 0; i < items; i++) {
+		itemtuple tuple = itemlist[items-1-i];
+
+		if (cur_node->parent_added) {
+			itemsadded[get<0>(tuple)] = true;
+		}
+		else
+			itemsadded[get<0>(tuple)] = false;
+		cur_node = cur_node->parent;
+	}
+
+	this->sortlistID();
+
+
+	// Print the formatted output
+	cout << bestvalue << " 1" << endl;
+	for (int i = 0; i < items; i++) {
+		if (itemsadded[i])
+			cout << "1 ";
+		else
+			cout << "0 ";
+	}
+	cout << endl;
 
 }
 
@@ -78,12 +106,11 @@ void BBSolver::branch(BBNode *node, int height) {
 	else
 		next_item = -1;
 	
-	cout << "Node: Item #" << height << " Value=" << node->value << " Room=" << node->room << " Estimate=" << node->estimate << endl;
+//	cout << "Node: Item #" << height << " Value=" << node->value << " Room=" << node->room << " Estimate=" << node->estimate << endl;
 
 	// If this is a leaf node and it has a better value than the best one, replace the bestvalue variable and point to this node
 	if (height == items) {
 		if (node->value > bestvalue) {
-			cout << "Changing best value to " << node->value << endl;
 			bestvalue = node->value;
 			bestnode = node;
 		}
@@ -92,32 +119,31 @@ void BBSolver::branch(BBNode *node, int height) {
 
 	// If the estimate is worse than the best value, then don't do anything more with this branch.
 	if (node->estimate < bestvalue) {
-		cout << "Estimate not good enough. Terminating" << endl;
 		return;
 	}
 
 	// If there is room for the item, add a branch
 	if (node->room - get<2>(tuple) > 0) {
-		node->added = new BBNode(next_item, node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate);
-	//	cout << "+Node -  Item #" << height << " added. Estimate=" << node->estimate << endl;
+		node->added = new BBNode(next_item, node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate, true);
+		node->added->parent = node;
 		branch(node->added, height+1);
 	}
 
 	// Add another branch for the item not being added. Need to get a new estimate.
 	int newestimate;
 	newestimate = node->value + getEstimate(height+1,node->room);
-	node->notadded = new BBNode(get<0>(tuple), node->value, node->room, newestimate);
-//	cout << "+Node -  Item #" << height << " not added. Value=" << node->value << " Room=" << node->room << " Estimate=" << newestimate << endl;
+	node->notadded = new BBNode(get<0>(tuple), node->value, node->room, newestimate, false);
+	node->notadded->parent = node;
 	branch(node->notadded, height+1);
 }
 
 
 
 // BBNode Class Functions
-BBNode::BBNode(int itemid, int value, int room, int estimate) {
+BBNode::BBNode(int itemid, int value, int room, int estimate, bool parent_added) {
 	this->itemid = itemid;
 	this->value = value;
 	this->room = room;
 	this->estimate = estimate;
+	this->parent_added = parent_added;
 }
-

@@ -13,10 +13,10 @@ ksbb: ksbb.o bbclass.o
 	g++ ksbb.o bbclass.o -o ksbb
 
 ksbb.o: ksbb.cpp bbclass.h
-	g++ -c ksbb.cpp -std=c++11
+	g++ -c ksbb.cpp -std=c++11 -O3
 
 bbclass.o: bbclass.cpp bbclass.h
-	g++ -c bbclass.cpp -std=c++11
+	g++ -c bbclass.cpp -std=c++11 -O3
 
 clean:
 	rm -rf *.o ksdp ksbb

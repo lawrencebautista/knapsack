@@ -9,7 +9,7 @@
 
 using namespace std;
 
-typedef tuple<int,int,int,double> itemtuple; //Value, Weight, V/W
+typedef tuple<int,int,int,double> itemtuple; //id, value, Weight, V/W
 
 
 /* MAIN PROGRAM START 123 */
@@ -46,9 +46,10 @@ int main(int argc, char *argv[]) {
 
 
 	solver->sortlistVPW();
-	solver->displayItems();
+//	solver->displayItems();
 	solver->run();
-//
+
+
 	delete solver;
 	return 0;
 }

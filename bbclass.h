@@ -12,9 +12,10 @@ public:
 	int value;
 	int room;
 	int estimate;
+	bool parent_added;
 	BBNode *added, *notadded; 
 	BBNode *parent;
-	BBNode(int, int, int, int); // Item ID, Value, Room, Estimate
+	BBNode(int, int, int, int, bool); // Item ID, Value, Room, Estimate
 };
 
 
