@@ -37,23 +37,30 @@ void BBSolver::sortlistVPW() {
 	sort(itemlist.begin(), itemlist.end(), sortVPW);
 }
 
-void BBSolver::run() {
-	this->sortlistVPW();
-
-	//Get first estimate
+int BBSolver::getEstimate(int item_num, int room) {
 	int tempweight = 0;
 	int estimate = 0;
-	for (int i = 0; i < items; i++) {
-		if (tempweight+get<2>(itemlist[i]) < capacity) {
+
+	for (int i = item_num; i < items; i++) {
+		if (tempweight+get<2>(itemlist[i]) < room) {
 			estimate += get<1>(itemlist[i]);
 			tempweight += get<2>(itemlist[i]);
 		}
-		else { //Get a fraction of the next item
-			double fraction = (double)(capacity-tempweight)/get<2>(itemlist[i]);
+		else { //Get a fraction of the next item 
+			double fraction = (double) (room - tempweight)/get<2>(itemlist[i]);
 			estimate += fraction*get<1>(itemlist[i]);
 			break;
 		}
 	}
+	return estimate;
+
+}
+
+void BBSolver::run() {
+	this->sortlistVPW();
+
+	int estimate = getEstimate(0,capacity);
+
 	//Construct root with item most V/W
 	BBNode *root = new BBNode(get<0>(itemlist[0]), 0, capacity, estimate);
 	cout << "First estimate: " << estimate << endl;
@@ -75,7 +82,16 @@ void BBSolver::run() {
 
 void BBSolver::branch(BBNode *node, int height) {
 	itemtuple tuple = itemlist[height];
-	node->added = new BBNode(get<0>(tuple), node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate);
+
+	// If there is room for the item, add a branch
+	if (node->room - get<2>(tuple) > 0) {
+		node->added = new BBNode(get<0>(tuple), node->value + get<1>(tuple), node->room - get<2>(tuple), node->estimate);
+		branch(node->added, height+1);
+	}
+
+	// Add another branch for the item not being added. Need to get a new estimate.
+	int newestimate;
+	node->notadded = new BBNode(get<0>(tuple), node->value, node->room, newestimate);
 
 }
 

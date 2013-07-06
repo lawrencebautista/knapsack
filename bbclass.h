@@ -29,6 +29,7 @@ public:
 	void displayItems();
 	void sortlistID();
 	void sortlistVPW();
+	int getEstimate(int, int);
 	void run();
 	void branch(BBNode *, int);
 	
