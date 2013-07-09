@@ -9,6 +9,7 @@ The branch and bound algorithm is more functional as it isn't limited by availab
 
 The makefile compiles both executables.
 To run the executables the syntax is the following:
+
 	./ksdp <datafile>
 	./ksbb <datafile>
 
